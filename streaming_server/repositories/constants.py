@@ -17,3 +17,11 @@ INSERT_QUERY = '''
 DELETE_QUERY = '''
     DELETE FROM video WHERE id = ?
 '''
+
+SELECT_ALL_QUERY = '''
+    SELECT * FROM video
+'''
+
+SELECT_BY_NAME_QUERY = '''
+    SELECT * FROM video WHERE name LIKE ?
+'''

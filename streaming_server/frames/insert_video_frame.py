@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog, Label, Button, Entry
-from daos.video_dao import VideoDao
+from repositories.video_repository import VideoRepository
 from services.video_file_manager_service import VideoFileManagerService
 
 class InsertVideoFrame:
@@ -40,7 +40,7 @@ class InsertVideoFrame:
     def submit(self):
         video_name = self.name_var.get()
         video_format = self.video_path.split('.')[-1]
-        video_id = VideoDao.insert(video_name, video_format)
+        video_id = VideoRepository.insert(video_name, video_format)
         filename = f"{video_id}_{video_name.replace(' ', '_')}.{video_format}".lower()
         VideoFileManagerService.copy_file(self.video_path, filename)
         self.close()
