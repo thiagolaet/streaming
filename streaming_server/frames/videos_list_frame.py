@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import *
 from tkinter import ttk
 from datetime import datetime
+from repositories.video_repository import VideoRepository
 
 class VideosListFrame(tk.Frame):
     def __init__(self, master):
@@ -20,33 +21,41 @@ class VideosListFrame(tk.Frame):
             y_scrollbar.pack(side=RIGHT, fill=Y)
 
             # table
-            list = ttk.Treeview(self.frame)
-            list['columns'] = ('id', 'title', 'video_format', 'views', 'uploaded_at')
+            self.list = ttk.Treeview(self.frame)
+            self.list['columns'] = ('id', 'title', 'video_format', 'views', 'uploaded_at')
 
-            list.column("#0", width=0,  stretch=NO)
-            list.column("id",anchor=CENTER, width=30)
-            list.column("title",anchor=CENTER, width=220)
-            list.column("video_format",anchor=CENTER,width=70)
-            list.column("views",anchor=CENTER,width=84)
-            list.column("uploaded_at",anchor=CENTER,width=124)
+            self.list.column("#0", width=0,  stretch=NO)
+            self.list.column("id",anchor=CENTER, width=30)
+            self.list.column("title",anchor=CENTER, width=220)
+            self.list.column("video_format",anchor=CENTER,width=70)
+            self.list.column("views",anchor=CENTER,width=84)
+            self.list.column("uploaded_at",anchor=CENTER,width=124)
 
-            list.heading("#0",text="",anchor=CENTER)
-            list.heading("id",text="Id",anchor=CENTER)
-            list.heading("title",text="Título",anchor=CENTER)
-            list.heading("video_format",text="Formato",anchor=CENTER)
-            list.heading("views",text="Visualizações",anchor=CENTER)
-            list.heading("uploaded_at",text="Data de upload",anchor=CENTER)
-            list.pack()
+            self.list.heading("#0",text="",anchor=CENTER)
+            self.list.heading("id",text="Id",anchor=CENTER)
+            self.list.heading("title",text="Título",anchor=CENTER)
+            self.list.heading("video_format",text="Formato",anchor=CENTER)
+            self.list.heading("views",text="Visualizações",anchor=CENTER)
+            self.list.heading("uploaded_at",text="Data de upload",anchor=CENTER)
+            self.list.pack()
 
             label = tk.Label(self.frame, text='* os horários mostrados na tabela estão no fuso horário UTC', **self.padding)
             label.pack()
 
             for video in data:
-                list.insert(parent='',index='end',iid=video.id,text='',
+                self.list.insert(parent='',index='end',iid=video.id,text='',
                 values=(video.id, video.name, video.video_format, video.views, datetime.strptime(video.uploaded_at, '%Y-%m-%d %H:%M:%S').strftime('%d/%m/%Y %H:%M:%S')))
 
-        self.frame.grid(row=1, column=0, columnspan=2)
+        self.frame.grid(row=1, column=0, columnspan=3)
 
     def clear_frame(self):
         for widget in self.frame.winfo_children():
             widget.destroy()
+
+    def remove_videos(self):
+        if not self.list:
+            return
+        videos = self.list.selection()
+        for video in videos:
+            VideoRepository.delete(video)
+            self.list.delete(video)
