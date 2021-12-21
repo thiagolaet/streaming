@@ -1,6 +1,6 @@
 import socketserver, threading, time, pickle
 import constants as C
-from helpers import get_videos_as_dict_list, play_video
+from helpers import get_videos_as_dict_list
 
 
 class ThreadedUDPRequestHandler(socketserver.BaseRequestHandler):
