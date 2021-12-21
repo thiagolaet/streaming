@@ -1,8 +1,6 @@
-import socket
 from socket import *
 import tkinter as tk
 from tkinter import *
-from tkinter.ttk import *
 from PIL import Image
 from PIL import ImageTk
 import cv2
@@ -10,11 +8,10 @@ import pickle
 from constants import *
 
 
+
 class client_app():
     def __init__(self):
         self.clientSocket = socket(AF_INET, SOCK_DGRAM)
-        hostname = socket.getsockname()
-        self.ip_address = socket.gethostbyname(hostname)
         self.window = tk.Tk()
         self.window.title('Streaming app - login')
         self.username = ''
@@ -37,11 +34,6 @@ class client_app():
     def abre_menu(self):
         if (self.nome.get() != ''):
             self.username = self.nome.get()
-            data = {
-                'message': 'ENTRAR_NA_APP',
-                'params': {}
-            }
-            self.clientSocket.sendto(pickle.dumps(data), (ip_servidor,porta_servidor))
             self.window.destroy()
             self.window = tk.Tk()
             self.window.title('Streaming app')
@@ -55,8 +47,11 @@ class client_app():
             'params': {}
         }
         self.clientSocket.sendto(pickle.dumps(data), (ip_servidor, porta_servidor))
-        lista = self.clientSocket.recv(tamanho_buffer)
+        lista = self.clientSocket.recv(1024)
+        lista = pickle.loads(lista)
+        print(lista)
         self.lista_de_videos = lista['data']
+
 
 
     def menu_principal(self):
@@ -65,7 +60,7 @@ class client_app():
         for i in range(len(self.lista_de_videos)):
             frm_videos = tk.Frame(master=frm_menu_principal, height=50, width=400, relief=tk.RAISED)
             frm_videos.grid(column=i % 5, row=i // 5, sticky='w')
-            label_video = tk.Button(master=frm_videos, text=self.lista_de_videos[i].name(), font=('Lucida', 12), width=20, height=4,
+            label_video = tk.Button(master=frm_videos, text=self.lista_de_videos[i]['name'], font=('Lucida', 12), width=20, height=4,
                                     padx=5, pady=5, relief=tk.GROOVE,
                                     command=lambda i=i: self.seleciona_qualidade(self.lista_de_videos[i], frm_menu_principal, frm_lateral))
             label_video.pack()
@@ -79,7 +74,7 @@ class client_app():
         lbl_username.pack(fill=tk.X)
 
         lbl_atualiza = tk.Button(master=frm_lateral, text='Atualiza catalogo', width=25, fg='blue', height=3,
-                                 relief=tk.GROOVE, command=self.listar_videos)
+                                 relief=tk.GROOVE, command=lambda: self.atualiza_catalogo(frm_menu_principal, frm_lateral))
         lbl_atualiza.pack(fill=tk.X, side="top")
 
         lbl_sair = tk.Button(master=frm_lateral, text='Sair da aplicação', width=25, fg='red', height=3, relief=tk.GROOVE,
@@ -87,6 +82,12 @@ class client_app():
         lbl_sair.pack(fill=tk.X, side="bottom")
 
         self.window.mainloop()
+
+    def atualiza_catalogo(self, frm_menu_principal, frm_lateral):
+        frm_menu_principal.destroy()
+        frm_lateral.destroy()
+        self.listar_videos()
+        self.menu_principal()
 
     def sair_da_app(self):
         data = {
@@ -107,9 +108,9 @@ class client_app():
 
         frm_descricao = tk.Frame(self.window, padx=15, pady=5)
         frm_descricao.grid(row=0, column=0)
-        lbl_nome = tk.Label(frm_descricao, text=filme.name, height=3, width=25, anchor='w')
+        lbl_nome = tk.Label(frm_descricao, text="Título: "+filme['name'], height=3, width=25, anchor='w')
         lbl_nome.pack()
-        lbl_descricao = tk.Label(frm_descricao, text=filme.views, width=25, anchor='w')
+        lbl_descricao = tk.Label(frm_descricao, text=str(filme['views'])+" vizualizações", width=25, anchor='w')
         lbl_descricao.pack()
 
         frm_qualidade = tk.LabelFrame(self.window, text='Resolução', padx=15, pady=5)
@@ -117,13 +118,13 @@ class client_app():
         frm_cancelar = tk.LabelFrame(self.window, padx=15, relief='flat')
         frm_cancelar.grid(row=1, column=1, padx=2, sticky='s')
         list_videos_button = tk.Button(frm_qualidade, text="480p", width=12, height=1,
-                                       command=lambda: self.assistir_video(frm_descricao, frm_qualidade, frm_cancelar, filme.id, '480'))
+                                       command=lambda: self.assistir_video(frm_descricao, frm_qualidade, frm_cancelar, filme['id'], '640'))
         list_videos_button.pack(pady=3)
         add_videos_button = tk.Button(frm_qualidade, text="720p", width=12, height=1,
-                                      command=lambda: self.assistir_video(frm_descricao, frm_qualidade, frm_cancelar, filme.id, '720'))
+                                      command=lambda: self.assistir_video(frm_descricao, frm_qualidade, frm_cancelar, filme['id'], '1280'))
         add_videos_button.pack(pady=3)
         remove_videos_button = tk.Button(frm_qualidade, text="1080p", width=12, height=1,
-                                         command=lambda: self.assistir_video(frm_descricao, frm_qualidade,frm_cancelar,filme.id, '1080'))
+                                         command=lambda: self.assistir_video(frm_descricao, frm_qualidade,frm_cancelar, filme['id'], '1920'))
         remove_videos_button.pack(pady=3)
         btn_cancela = tk.Button(frm_cancelar, text="Cancelar", width=12, height=1,
                                 command=lambda: self.cancela_escolha_resolucao(frm_descricao, frm_qualidade, frm_cancelar))
@@ -145,7 +146,7 @@ class client_app():
         data = {
             'message': 'REPRODUZIR_VIDEO',
             'params': {
-                'video_id': id,
+                'video_id': id_filme,
                 'video_resolution': resolucao
             }
         }
@@ -175,7 +176,6 @@ class client_app():
             cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
 
             img = Image.fromarray(cv2image)
-            # .resize((760,400))
             imgtk = ImageTk.PhotoImage(image=img)
             frm_video.imgtk = imgtk
             frm_video.configure(image=imgtk)
