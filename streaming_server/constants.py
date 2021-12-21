@@ -1,5 +1,8 @@
 from pathlib import Path
 
+HOST = '0.0.0.0'
+PORT = 6000
+
 BASE_PATH = str(Path().absolute())
 VIDEOS_PATH = f'{BASE_PATH}/videos'
 

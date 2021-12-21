@@ -65,4 +65,4 @@ class VideoRepository:
         for video in result:
             videos.append(VideoFactory.build_from_dict(video))
         db.close()
-        return videos
+        return videos[0]
