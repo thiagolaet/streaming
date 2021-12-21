@@ -13,7 +13,6 @@ class ListVideosFrame(tk.Frame):
         self.name_var = tk.StringVar()
         self.videos_list_frame = VideosListFrame(self.frame)
         self.create_widgets()
-        self.is_remove_button_binded = False
         self.search_videos()
 
     def create_widgets(self):
@@ -47,7 +46,7 @@ class ListVideosFrame(tk.Frame):
         else:
             videos = VideoRepository.get_all_videos()
         self.videos_list_frame.render_list(videos)
-        if videos and not self.is_remove_button_binded:
+        if videos:
             self.videos_list_frame.list.bind('<ButtonRelease-1>', self.activate_remove_video_button)
             self.is_remove_button_binded = True
 
