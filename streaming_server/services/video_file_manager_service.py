@@ -5,4 +5,4 @@ class VideoFileManagerService:
 
     @classmethod
     def copy_file(cls, path, filename):
-        copyfile(path, f'{VIDEOS_PATH}\\{filename}')
+        copyfile(path, f'{VIDEOS_PATH}/{filename}')

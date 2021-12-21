@@ -54,3 +54,15 @@ class VideoRepository:
             videos.append(VideoFactory.build_from_dict(video))
         db.close()
         return videos
+
+    @classmethod
+    def get_video_by_id(cls, id):
+        db = sqlite3.connect(C.DB_NAME)
+        db.row_factory = dict_factory
+        cursor = db.cursor()
+        result = cursor.execute(C.SELECT_BY_ID_QUERY, (id,))
+        videos = []
+        for video in result:
+            videos.append(VideoFactory.build_from_dict(video))
+        db.close()
+        return videos[0]

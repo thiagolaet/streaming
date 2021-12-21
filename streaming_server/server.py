@@ -1,6 +1,6 @@
 import socketserver, threading, time, pickle
 import constants as C
-from helpers import get_videos_list
+from helpers import get_videos_as_dict_list
 
 
 class ThreadedUDPRequestHandler(socketserver.BaseRequestHandler):
@@ -13,14 +13,12 @@ class ThreadedUDPRequestHandler(socketserver.BaseRequestHandler):
         if data.get('message'):
             if data['message'] == C.LIST_VIDEOS:
                 response['message'] = C.LIST_VIDEOS_RESPONSE
-                response['data'] = get_videos_list(data.get('params').get('name'))
+                response['data'] = get_videos_as_dict_list(data.get('params').get('name'))
+                socket.sendto(pickle.dumps(response), self.client_address)
             # elif data['message'] == C.START_STREAMING:
-            #     response['message'] = 'RESPOSTA'
-            #     response['data'] = get_video()
-            # elif data['message'] = C.STOP_STREAMING:
-            #     response['message'] = 'RESPOSTA'
-
-        socket.sendto(pickle.dumps(response), self.client_address)
+            #     play_video(socket, self.client_address, data.get('params').get('video_id'), data.get('params').get('video_resolution'))
+            # elif data['message'] == C.STOP_STREAMING:
+            #     socket.close()
         return
 
 
@@ -30,13 +28,13 @@ class ThreadedUDPServer(socketserver.ThreadingMixIn, socketserver.UDPServer):
 
 if __name__ == "__main__":
     HOST, PORT = "0.0.0.0", 6000
-    server = ThreadedUDPServer((HOST, PORT), ThreadedUDPRequestHandler)
+    server = ThreadedUDPServer((C.HOST, C.PORT), ThreadedUDPRequestHandler)
     server_thread = threading.Thread(target=server.serve_forever)
     server_thread.daemon = True
 
     try:
         server_thread.start()
-        print("Server started at {} port {}".format(HOST, PORT))
+        print("Server started at {} port {}".format(C.HOST, C.PORT))
         while True: time.sleep(100)
     except (KeyboardInterrupt, SystemExit):
         server.shutdown()
