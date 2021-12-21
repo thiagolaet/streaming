@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import *
 from repositories.video_repository import VideoRepository
 from frames.videos_list_frame import VideosListFrame
+from frames import InsertVideoFrame
 
 class ListVideosFrame(tk.Frame):
 
@@ -13,16 +14,24 @@ class ListVideosFrame(tk.Frame):
         self.videos_list_frame = VideosListFrame(self.frame)
         self.create_widgets()
         self.is_remove_button_binded = False
+        self.search_videos()
 
     def create_widgets(self):
         self.frame.pack()
-        name_entry = Entry(self.frame, textvariable=self.name_var, width=60)
+        name_entry = Entry(self.frame, textvariable=self.name_var, width=40)
         name_entry.grid(column=0, row=0, **self.padding)
         name_entry.focus()
         search_video_button = Button(self.frame, text="Buscar", width=12, height=1, command=self.search_videos)
         search_video_button.grid(column=1, row=0, **self.padding)
         self.remove_video_button = Button(self.frame, text="Remover", width=12, height=1, command=self.remove_videos, state="disabled")
         self.remove_video_button.grid(column=2, row=0, **self.padding)
+        add_videos_button = Button(self.frame, text="Novo vídeo", width=12, height=1, command=self.open_add_video_window)
+        add_videos_button.grid(column=3, row=0, **self.padding)
+
+    def open_add_video_window(self):
+        insert_window = Toplevel(self.master)
+        insert_window.title('Novo vídeo')
+        InsertVideoFrame(insert_window)
 
     def activate_remove_video_button(self, e):
         # Caso o clique não tenha sido em nenhuma linha da lista, retorna

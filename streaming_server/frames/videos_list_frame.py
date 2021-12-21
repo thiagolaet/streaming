@@ -26,7 +26,7 @@ class VideosListFrame(tk.Frame):
 
             self.list.column("#0", width=0,  stretch=NO)
             self.list.column("id",anchor=CENTER, width=30)
-            self.list.column("title",anchor=CENTER, width=220)
+            self.list.column("title",anchor=CENTER, width=240)
             self.list.column("video_format",anchor=CENTER,width=70)
             self.list.column("views",anchor=CENTER,width=84)
             self.list.column("uploaded_at",anchor=CENTER,width=124)
@@ -46,7 +46,7 @@ class VideosListFrame(tk.Frame):
                 self.list.insert(parent='',index='end',iid=video.id,text='',
                 values=(video.id, video.name, video.video_format, video.views, datetime.strptime(video.uploaded_at, '%Y-%m-%d %H:%M:%S').strftime('%d/%m/%Y %H:%M:%S')))
 
-        self.frame.grid(row=1, column=0, columnspan=3)
+        self.frame.grid(row=1, column=0, columnspan=4)
 
     def clear_frame(self):
         for widget in self.frame.winfo_children():
