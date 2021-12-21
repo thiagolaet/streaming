@@ -11,6 +11,3 @@ def envia_mensagem(self, mensagem, resposta):
     self.streamingSocket.send(mensagem.encode('UTF-8'))
     espera_mensagem(self, resposta)
     return True
-
-
-
