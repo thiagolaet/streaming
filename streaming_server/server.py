@@ -1,6 +1,6 @@
 import socketserver, threading, time, pickle
 import constants as C
-from helpers import get_videos_list
+from helpers import get_videos_as_dict_list, play_video
 
 
 class ThreadedUDPRequestHandler(socketserver.BaseRequestHandler):
@@ -13,10 +13,10 @@ class ThreadedUDPRequestHandler(socketserver.BaseRequestHandler):
         if data.get('message'):
             if data['message'] == C.LIST_VIDEOS:
                 response['message'] = C.LIST_VIDEOS_RESPONSE
-                response['data'] = get_videos_list(data.get('params').get('name'))
+                response['data'] = get_videos_as_dict_list(data.get('params').get('name'))
             # elif data['message'] == C.START_STREAMING:
-            #     response['message'] = 'RESPOSTA'
-            #     response['data'] = get_video()
+            #     response['message'] = C.DEFAULT_RESPONSE
+            #     play_video(data.get('params').get('video_id'))
             # elif data['message'] = C.STOP_STREAMING:
             #     response['message'] = 'RESPOSTA'
 

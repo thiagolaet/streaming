@@ -25,3 +25,7 @@ SELECT_ALL_QUERY = '''
 SELECT_BY_NAME_QUERY = '''
     SELECT * FROM video WHERE name LIKE ?
 '''
+
+SELECT_BY_ID_QUERY = '''
+    SELECT * FROM video WHERE id = ?
+'''
