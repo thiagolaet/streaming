@@ -119,15 +119,15 @@ class client_app():
         frm_qualidade.grid(row=0, column=1, padx=2, pady=5, sticky='s')
         frm_cancelar = tk.LabelFrame(self.window, padx=15, relief='flat')
         frm_cancelar.grid(row=1, column=1, padx=2, sticky='s')
+        remove_videos_button = tk.Button(frm_qualidade, text="240p", width=12, height=1,
+                                         command=lambda: self.assistir_video(frm_descricao, frm_qualidade,frm_cancelar, filme['id'], 426))
+        remove_videos_button.pack(pady=3)
         list_videos_button = tk.Button(frm_qualidade, text="480p", width=12, height=1,
-                                       command=lambda: self.assistir_video(frm_descricao, frm_qualidade, frm_cancelar, filme['id'], 640))
+                                       command=lambda: self.assistir_video(frm_descricao, frm_qualidade, frm_cancelar, filme['id'], 854))
         list_videos_button.pack(pady=3)
         add_videos_button = tk.Button(frm_qualidade, text="720p", width=12, height=1,
                                       command=lambda: self.assistir_video(frm_descricao, frm_qualidade, frm_cancelar, filme['id'], 1280))
         add_videos_button.pack(pady=3)
-        remove_videos_button = tk.Button(frm_qualidade, text="1080p", width=12, height=1,
-                                         command=lambda: self.assistir_video(frm_descricao, frm_qualidade,frm_cancelar, filme['id'], 1920))
-        remove_videos_button.pack(pady=3)
         btn_cancela = tk.Button(frm_cancelar, text="Cancelar", width=12, height=1,
                                 command=lambda: self.cancela_escolha_resolucao(frm_descricao, frm_qualidade, frm_cancelar))
         btn_cancela.pack(pady=10)
