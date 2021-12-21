@@ -25,11 +25,11 @@ class VideosListFrame(tk.Frame):
             self.list['columns'] = ('id', 'title', 'video_format', 'views', 'uploaded_at')
 
             self.list.column("#0", width=0,  stretch=NO)
-            self.list.column("id",anchor=CENTER, width=30)
+            self.list.column("id",anchor=CENTER, width=40)
             self.list.column("title",anchor=CENTER, width=240)
-            self.list.column("video_format",anchor=CENTER,width=70)
-            self.list.column("views",anchor=CENTER,width=84)
-            self.list.column("uploaded_at",anchor=CENTER,width=124)
+            self.list.column("video_format",anchor=CENTER,width=80)
+            self.list.column("views",anchor=CENTER,width=124)
+            self.list.column("uploaded_at",anchor=CENTER,width=160)
 
             self.list.heading("#0",text="",anchor=CENTER)
             self.list.heading("id",text="Id",anchor=CENTER)

@@ -6,8 +6,10 @@ from PIL import ImageTk
 import cv2
 import pickle
 from constants import *
+import struct
+import numpy
 
-
+MAX_DGRAM = 2**16
 
 class client_app():
     def __init__(self):
@@ -110,7 +112,7 @@ class client_app():
         frm_descricao.grid(row=0, column=0)
         lbl_nome = tk.Label(frm_descricao, text="Título: "+filme['name'], height=3, width=25, anchor='w')
         lbl_nome.pack()
-        lbl_descricao = tk.Label(frm_descricao, text=str(filme['views'])+" vizualizações", width=25, anchor='w')
+        lbl_descricao = tk.Label(frm_descricao, text=str(filme['views'])+" visualizações", width=25, anchor='w')
         lbl_descricao.pack()
 
         frm_qualidade = tk.LabelFrame(self.window, text='Resolução', padx=15, pady=5)
@@ -118,13 +120,13 @@ class client_app():
         frm_cancelar = tk.LabelFrame(self.window, padx=15, relief='flat')
         frm_cancelar.grid(row=1, column=1, padx=2, sticky='s')
         list_videos_button = tk.Button(frm_qualidade, text="480p", width=12, height=1,
-                                       command=lambda: self.assistir_video(frm_descricao, frm_qualidade, frm_cancelar, filme['id'], '640'))
+                                       command=lambda: self.assistir_video(frm_descricao, frm_qualidade, frm_cancelar, filme['id'], 640))
         list_videos_button.pack(pady=3)
         add_videos_button = tk.Button(frm_qualidade, text="720p", width=12, height=1,
-                                      command=lambda: self.assistir_video(frm_descricao, frm_qualidade, frm_cancelar, filme['id'], '1280'))
+                                      command=lambda: self.assistir_video(frm_descricao, frm_qualidade, frm_cancelar, filme['id'], 1280))
         add_videos_button.pack(pady=3)
         remove_videos_button = tk.Button(frm_qualidade, text="1080p", width=12, height=1,
-                                         command=lambda: self.assistir_video(frm_descricao, frm_qualidade,frm_cancelar, filme['id'], '1920'))
+                                         command=lambda: self.assistir_video(frm_descricao, frm_qualidade,frm_cancelar, filme['id'], 1920))
         remove_videos_button.pack(pady=3)
         btn_cancela = tk.Button(frm_cancelar, text="Cancelar", width=12, height=1,
                                 command=lambda: self.cancela_escolha_resolucao(frm_descricao, frm_qualidade, frm_cancelar))
@@ -138,10 +140,32 @@ class client_app():
         frm_cancelar.destroy()
         self.menu_principal()
 
+    def dump_buffer(self, sock):
+        while True:
+            seg, addr = sock.recvfrom(MAX_DGRAM)
+            print(seg[0])
+            if struct.unpack('B', seg[0:1])[0] == 1:
+                break
+
     def assistir_video(self, frm_descricao, frm_qualidade, frm_cancelar, id_filme, resolucao):
         frm_qualidade.destroy()
         frm_descricao.destroy()
         frm_cancelar.destroy()
+
+        # self.window.title('Streaming app')
+
+        # self.window.columnconfigure(0, weight=0)
+        # self.window.columnconfigure(1, weight=1)
+
+        # frm_video = tk.Label(self.window, relief='flat', bg='black')
+        # frm_buttons = tk.Frame(self.window, bg='black')
+        # btn_voltar = tk.Button(frm_buttons, text="<", bg='black', fg='white', relief='flat',
+        #                      command=lambda: self.volta_para_menu(frm_video, frm_buttons))
+        # btn_voltar.grid(row=0, column=0, sticky="ew", ipadx=15, ipady=10)
+        # btn_sair = tk.Button(frm_buttons, text="Sair", bg='black', fg='red', relief='flat', command=lambda: self.sair_da_app())
+        # btn_sair.grid(row=1, column=0, sticky="ews", ipadx=15, ipady=10)
+        # frm_buttons.grid(row=0, column=0, sticky="ns")
+        # frm_video.grid(row=0, column=1, sticky="nsew")
 
         data = {
             'message': 'REPRODUZIR_VIDEO',
@@ -150,52 +174,49 @@ class client_app():
                 'video_resolution': resolucao
             }
         }
+        dat = b''
         self.clientSocket.sendto(pickle.dumps(data), (ip_servidor, porta_servidor))
+        self.dump_buffer(self.clientSocket)
 
-        self.window.title('Streaming app')
+        while True:
+            seg, addr = self.clientSocket.recvfrom(MAX_DGRAM)
+            if struct.unpack('B', seg[0:1])[0] > 1:
+                dat += seg[1:]
+            else:
+                dat += seg[1:]
+                img = cv2.imdecode(numpy.fromstring(dat, dtype=numpy.uint8), 1)
+                cv2.imshow('frame', img)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+                dat = b''
+        cv2.destroyAllWindows()
+        self.volta_para_menu()
 
-        self.window.columnconfigure(0, weight=0)
-        self.window.columnconfigure(1, weight=1)
+        # def show_frame():
 
-        frm_video = tk.Label(self.window, relief='flat', bg='black')
-        frm_buttons = tk.Frame(self.window, bg='black')
-        btn_voltar = tk.Button(frm_buttons, text="<", bg='black', fg='white', relief='flat',
-                             command=lambda: self.volta_para_menu(frm_video, frm_buttons))
-        btn_voltar.grid(row=0, column=0, sticky="ew", ipadx=15, ipady=10)
-        btn_sair = tk.Button(frm_buttons, text="Sair", bg='black', fg='red', relief='flat', command=lambda: self.sair_da_app())
-        btn_sair.grid(row=1, column=0, sticky="ews", ipadx=15, ipady=10)
-        frm_buttons.grid(row=0, column=0, sticky="ns")
-        frm_video.grid(row=0, column=1, sticky="nsew")
+        #     ret, frame = cap.read()
 
-        cap = cv2.VideoCapture('video.mp4')
+        #     cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
 
-        def show_frame():
+        #     img = Image.fromarray(cv2image)
+        #     imgtk = ImageTk.PhotoImage(image=img)
+        #     frm_video.imgtk = imgtk
+        #     frm_video.configure(image=imgtk)
+        #     frm_video.after(4, show_frame)
 
-            ret, frame = cap.read()
-
-            cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
-
-            img = Image.fromarray(cv2image)
-            imgtk = ImageTk.PhotoImage(image=img)
-            frm_video.imgtk = imgtk
-            frm_video.configure(image=imgtk)
-            frm_video.after(4, show_frame)
-
-        show_frame()
-        frm_video.grid(row=0, column=1, sticky="nsew")
+        # show_frame()
+        # frm_video.grid(row=0, column=1, sticky="nsew")
 
         # recebe data_video
 
         self.window.mainloop()
 
-    def volta_para_menu(self, frm_video, frm_buttons):
+    def volta_para_menu(self):
         data = {
             'message': 'PARAR_STREAMING',
             'params': {}
             }
         self.clientSocket.sendto(pickle.dumps(data), (ip_servidor,porta_servidor))
-        frm_buttons.destroy()
-        frm_video.destroy()
         self.menu_principal()
 
 if __name__ == "__main__":
