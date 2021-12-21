@@ -51,7 +51,6 @@ class client_app():
         self.clientSocket.sendto(pickle.dumps(data), (ip_servidor, porta_servidor))
         lista = self.clientSocket.recv(1024)
         lista = pickle.loads(lista)
-        print(lista)
         self.lista_de_videos = lista['data']
 
 
@@ -143,7 +142,6 @@ class client_app():
     def dump_buffer(self, sock):
         while True:
             seg, addr = sock.recvfrom(MAX_DGRAM)
-            print(seg[0])
             if struct.unpack('B', seg[0:1])[0] == 1:
                 break
 

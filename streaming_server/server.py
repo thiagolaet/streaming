@@ -18,7 +18,8 @@ class ThreadedUDPRequestHandler(socketserver.BaseRequestHandler):
             elif data['message'] == C.START_STREAMING:
                 play_video(socket, self.client_address, data.get('params').get('video_id'), data.get('params').get('video_resolution'))
             elif data['message'] == C.STOP_STREAMING:
-                import ipdb; ipdb.set_trace()
+                # import ipdb; ipdb.set_trace()
+                pass
         return
 
 
@@ -27,7 +28,6 @@ class ThreadedUDPServer(socketserver.ThreadingMixIn, socketserver.UDPServer):
 
 
 if __name__ == "__main__":
-    HOST, PORT = "0.0.0.0", 6000
     server = ThreadedUDPServer((C.HOST, C.PORT), ThreadedUDPRequestHandler)
     server_thread = threading.Thread(target=server.serve_forever)
     server_thread.daemon = True

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-HOST = '0.0.0.0'
+HOST = 'localhost'
 PORT = 6000
 
 BASE_PATH = str(Path().absolute())
