@@ -61,7 +61,7 @@ class client_app():
             frm_videos.grid(column=i % 5, row=i // 5, sticky='w')
             label_video = tk.Button(master=frm_videos, text=self.videos_list[i]['name'], font=('Lucida', 12), width=20, height=4,
                                     padx=5, pady=5, relief=tk.GROOVE,
-                                    command=lambda i=i: self.seleciona_resolution(self.videos_list[i], frm_main_menu, frm_side))
+                                    command=lambda i=i: self.choose_resolution(self.videos_list[i], frm_main_menu, frm_side))
             label_video.pack()
 
         frm_side = tk.LabelFrame(master=self.window)
@@ -97,7 +97,7 @@ class client_app():
         self.clientSocket.close()
         self.window.destroy()
 
-    def seleciona_resolution(self, video, frm_main_menu, frm_side):
+    def choose_resolution(self, video, frm_main_menu, frm_side):
         frm_main_menu.pack_forget()
         frm_side.pack_forget()
 
