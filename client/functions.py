@@ -1,13 +1,18 @@
 import sockets
+import pickle
 
 
 def espera_mensagem(self, resposta):
     response = self.streamingSocket.recv(1024)
-    while (response.decode('UTF-8')[0] != resposta):
+    while (response['resposta'] != resposta):
         response = self.streamingSocket.recv(1024)
     return True
 
 def envia_mensagem(self, mensagem, resposta):
-    self.streamingSocket.send(mensagem.encode('UTF-8'))
+    data = {
+        'message': mensagem,
+        'params': {}
+    }
+    self.managerSocket.sendto(pickle.dumps(data), ('ip_servidor', 'porta_streaming'))
     espera_mensagem(self, resposta)
     return True
