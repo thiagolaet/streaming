@@ -3,6 +3,7 @@ import tkinter as tk
 import cv2
 import pickle
 from constants import *
+import sys, struct, numpy
 
 <<<<<<< Updated upstream
 
@@ -433,15 +434,6 @@ class client_app():
         frm_description.destroy()
         frm_cancel.destroy()
 
-        data = {
-            'message': 'REPRODUZIR_VIDEO',
-            'params': {
-                'video_id': id_video,
-                'video_resolution': resolution
-            }
-        }
-        self.clientSocket.sendto(pickle.dumps(data), (server_ip, server_port))
-
         self.window.title('Streaming app')
 
         self.window.columnconfigure(0, weight=0)
@@ -456,8 +448,16 @@ class client_app():
         btn_leave.grid(row=1, column=0, sticky="ews", ipadx=15, ipady=10)
         frm_buttons.grid(row=0, column=0, sticky="ns")
         frm_video.grid(row=0, column=1, sticky="nsew")
+        frm_video.grid(row=0, column=1, sticky="nsew")
 
+        def dump_buffer():
+            while True:
+                seg, addr = self.clientSocket.recvfrom(MAX_DGRAM)
+                print(seg[0])
+                if struct.unpack('B', seg[0:1])[0] == 1:
+                    break
 
+<<<<<<< Updated upstream
         def show_frame():
 =======
     def cancela_escolha_resolucao(self, *args):
@@ -536,10 +536,42 @@ class client_app():
             frm_video.imgtk = imgtk
             frm_video.configure(image=imgtk)
             frm_video.after(4, show_frame)
+=======
+        dat = b''
+>>>>>>> Stashed changes
 
-        show_frame()
+        data = {
+            'message': 'REPRODUZIR_VIDEO',
+            'params': {
+                'video_id': id_video,
+                'video_resolution': resolution
+            }
+        }
+        self.clientSocket.sendto(pickle.dumps(data), (server_ip, server_port))
 
-        frm_video.grid(row=0, column=1, sticky="nsew")
+        dump_buffer()
+        c = 0
+        while True:
+            seg, addr = self.clientSocket.recvfrom(MAX_DGRAM)
+            if struct.unpack('B', seg[0:1])[0] > 1:
+                dat += seg[1:]
+            else:
+                dat += seg[1:]
+                img = cv2.imdecode(numpy.fromstring(dat, dtype=numpy.uint8), 1)
+
+                def show_frame():
+                    cv2image = cv2.cvtColor(img, cv2.COLOR_BGR2RGBA)
+                    img = Image.fromarray(cv2image)
+                    imgtk = ImageTk.PhotoImage(image=img)
+                    frm_video.imgtk = imgtk
+                    frm_video.configure(image=imgtk)
+                    frm_video.after(4, show_frame)
+
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                     break
+                dat = b''
+                show_frame()
+        sock.close()
 
 
         self.window.mainloop()
